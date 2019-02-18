@@ -5,10 +5,9 @@ RUN echo 'deb http://ftp.debian.org/debian stretch-backports main non-free' > /e
     apt-get install -y --no-install-recommends \
         git \
         gcc \
-		g++ \
+	g++ \
         gfortran \
         mpich \
         python3 \
-        intel-mkl \
     && rm -rf /var/lib/apt/lists/*
 
