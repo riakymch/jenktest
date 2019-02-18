@@ -8,16 +8,4 @@ pipeline {
             }
         }
     }
-#    stages {
-#        stage('Build') {
-#            steps {
-#                sh 'make -C vectorAdd'
-#            }
-#        }
-#        stage('Test') {
-#            steps {
-#                sh 'make -C vectorAdd run'
-#            }
-#        }
-#    }
 }
