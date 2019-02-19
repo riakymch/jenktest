@@ -6,8 +6,8 @@ pipeline {
                 sh 'git --version'
                 sh 'gcc --version'
                 sh 'g++ --version'
-                sh 'python --version'
                 sh 'gfortran --version'
+                sh 'python3 --version'
                 sh 'mpicc -show'
                 sh 'mpicxx -show'
             }
