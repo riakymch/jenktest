@@ -8,8 +8,7 @@ pipeline {
                 sh 'g++ --version'
                 sh 'gfortran --version'
                 sh 'python3 --version'
-                sh 'mpicc -show'
-                sh 'mpicxx -show'
+                sh 'mpiexec --version'
             }
         }
     }
