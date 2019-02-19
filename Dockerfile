@@ -8,46 +8,19 @@ RUN apt-get update && \
         gfortran \
 	python3 \
         mpich \
-    && rm -rf /var/lib/apt/lists/*
-
-# install mkl
-RUN apt update && apt install -y --force-yes apt-transport-https && \
-  wget https://apt.repos.intel.com/intel-gpg-keys/GPG-PUB-KEY-INTEL-SW-PRODUCTS-2019.PUB && \
-  apt-key add GPG-PUB-KEY-INTEL-SW-PRODUCTS-2019.PUB && \
-  sh -c 'echo deb https://apt.repos.intel.com/mkl all main > /etc/apt/sources.list.d/intel-mkl.list' && \
-  apt-get update && DEBIAN_FRONTEND=noninteractive apt-get -y install cpio intel-mkl-64bit-2018.3-051 && \
-  (find /opt/intel -name "ia32*" -exec rm -rf {} \; || echo "removing ia32 binaries") ; \
-  (find /opt/intel -name "examples" -type d -exec rm -rf {} \; || echo "removing examples") ; \
-  (find /opt/intel -name "benchmarks" -exec rm -rf {} \; || echo "removing benchmarks") ; \
-  (find /opt/intel -name "documentation*" -exec rm -rf {} \; || echo "removing documentation") ; \
-  (rm -rf /opt/intel/mkl/interfaces ) ; \
-  (rm -rf /opt/intel/mkl/lib/intel64/*.a ) ; \
-  (rm -rf /opt/intel/mkl/lib/intel64/*mpi*.so ) ; \
-  (rm -rf /opt/intel/mkl/lib/intel64/*tbb*.so ) ; \
-  (rm -rf /opt/intel/mkl/lib/intel64/*pgi*.so ) ; \
-  (rm -rf /opt/intel/mkl/lib/intel64/*mc*.so ) ; \
-  (rm -rf /opt/intel/mkl/lib/intel64/*blacs*.so ) ; \
-  (rm -rf /opt/intel/mkl/lib/intel64/*scalapack*.so ) ; \
-  (rm -rf /opt/intel/mkl/lib/intel64/*gf*.so ) ; \
-  (rm -rf /opt/intel/mkl/lib/intel64/*mic*.so ) ; \
-  apt purge intel-tbb* intel-psxe* && \
-  apt-get clean autoclean && \
-  apt-get autoremove -y && \
-  ln -s -f bash /bin/sh && \
-  rm -rf /usr/share/doc && \
+    && rm -rf /var/lib/apt/lists/* && \
+  cd /tmp && \
+  wget -q http://registrationcenter-download.intel.com/akdlm/irc_nas/tec/14895/l_mkl_2019.1.144.tgz && \
+  tar -xzf l_mkl_2019.1.144.tgz && \
+  cd l_mkl_2019.1.144 && \
+  sed -i 's/ACCEPT_EULA=decline/ACCEPT_EULA=accept/g' silent.cfg && \
+  sed -i 's/ARCH_SELECTED=ALL/ARCH_SELECTED=INTEL64/g' silent.cfg && \
+#  sed -i 's/COMPONENTS=DEFAULTS/COMPONENTS=;intel-comp-l-all-vars__noarch;intel-openmp-l-all__x86_64;intel-openmp-l-ps-libs__x86_64;intel-openmp-l-ps-libs-jp__x86_64;intel-tbb-libs__noarch;intel-mkl-common__noarch;intel-mkl-sta-common__noarch;intel-mkl__x86_64;intel-mkl-rt__x86_64;intel-mkl-ps-rt-jp__x86_64;intel-mkl-doc__noarch;intel-mkl-ps-doc__noarch;intel-mkl-ps-doc-jp__noarch;intel-mkl-gnu__x86_64;intel-mkl-gnu-rt__x86_64;intel-mkl-ps-common__noarch;intel-mkl-ps-common-jp__noarch;intel-mkl-ps-common-64bit__x86_64;intel-mkl-common-c__noarch;intel-mkl-common-c-64bit__x86_64;intel-mkl-ps-common-c__noarch;intel-mkl-doc-c__noarch;intel-mkl-ps-doc-c-jp__noarch;intel-mkl-ps-ss-tbb__x86_64;intel-mkl-ps-ss-tbb-rt__x86_64;intel-mkl-gnu-c__x86_64;intel-mkl-ps-common-f__noarch;intel-mkl-ps-common-f-64bit__x86_64;intel-mkl-ps-doc-f__noarch;intel-mkl-ps-doc-f-jp__noarch;intel-mkl-ps-gnu-f-rt__x86_64;intel-mkl-ps-gnu-f__x86_64;intel-mkl-ps-f95-common__noarch;intel-mkl-ps-f__x86_64;intel-mkl-psxe__noarch;intel-psxe-common__noarch;intel-psxe-common-doc__noarch;intel-compxe-pset/g' silent.cfg && \
+  sed -i 's/COMPONENTS=DEFAULTS/COMPONENTS=;intel-comp-l-all-vars__noarch;intel-comp-nomcu-vars__noarch;intel-openmp__x86_64;intel-tbb-libs__x86_64;intel-mkl-common__noarch;intel-mkl-installer-license__noarch;intel-mkl-core__x86_64;intel-mkl-core-rt__x86_64;intel-mkl-doc__noarch;intel-mkl-doc-ps__noarch;intel-mkl-gnu__x86_64;intel-mkl-gnu-rt__x86_64;intel-mkl-common-ps__noarch;intel-mkl-core-ps__x86_64;intel-mkl-common-c__noarch;intel-mkl-core-c__x86_64;intel-mkl-common-c-ps__noarch;intel-mkl-tbb__x86_64;intel-mkl-tbb-rt__x86_64;intel-mkl-gnu-c__x86_64;intel-mkl-common-f__noarch;intel-mkl-core-f__x86_64;intel-mkl-gnu-f-rt__x86_64;intel-mkl-gnu-f__x86_64;intel-mkl-f95-common__noarch;intel-mkl-f__x86_64;intel-mkl-psxe__noarch;intel-psxe-common__noarch;intel-psxe-common-doc__noarch;intel-compxe-pset/g' silent.cfg && \
+  ./install.sh -s silent.cfg && \
+  cd .. && rm -rf * && \
+  rm -rf /opt/intel/.*.log /opt/intel/compilers_and_libraries_2019.1.144/licensing && \
   echo "/opt/intel/mkl/lib/intel64" >> /etc/ld.so.conf.d/intel.conf && \
   ldconfig && \
   echo "source /opt/intel/mkl/bin/mklvars.sh intel64" >> /etc/bash.bashrc
 
-RUN update-alternatives --install /usr/lib/x86_64-linux-gnu/libblas.so  \
-    libblas.so-x86_64-linux-gnu      /opt/intel/mkl/lib/intel64/libmkl_rt.so 50 && \
-  update-alternatives --install /usr/lib/x86_64-linux-gnu/libblas.so.3  \
-    libblas.so.3-x86_64-linux-gnu    /opt/intel/mkl/lib/intel64/libmkl_rt.so 50 && \
-  update-alternatives --install /usr/lib/x86_64-linux-gnu/liblapack.so   \
-    liblapack.so-x86_64-linux-gnu    /opt/intel/mkl/lib/intel64/libmkl_rt.so 50 && \
-  update-alternatives --install /usr/lib/x86_64-linux-gnu/liblapack.so.3 \
-    liblapack.so.3-x86_64-linux-gnu  /opt/intel/mkl/lib/intel64/libmkl_rt.so 50 && \
-  echo "/opt/intel/lib/intel64"     >  /etc/ld.so.conf.d/mkl.conf && \
-  echo "/opt/intel/mkl/lib/intel64" >> /etc/ld.so.conf.d/mkl.conf && \
-  ldconfig && \
-  echo "MKL_THREADING_LAYER=GNU" >> /etc/environment
