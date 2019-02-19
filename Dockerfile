@@ -6,7 +6,7 @@ RUN apt-get update && \
         gcc \
 	g++ \
         gfortran \
-        python \
+	python3 \
         mpich \
     && rm -rf /var/lib/apt/lists/*
 
