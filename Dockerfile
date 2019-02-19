@@ -8,6 +8,7 @@ RUN apt-get update && \
         gfortran \
 	python3 \
         mpich \
+	wget \
     && rm -rf /var/lib/apt/lists/* && \
   cd /tmp && \
   wget -q http://registrationcenter-download.intel.com/akdlm/irc_nas/tec/14895/l_mkl_2019.1.144.tgz && \
